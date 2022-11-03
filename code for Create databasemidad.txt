@@ -1,0 +1,175 @@
+Create database _1000Programmer
+---------------------------
+create table _users(
+Id int identity(1,1) constraint logintosystem primary key,
+_userName varchar(50),
+_passWord varchar(50)
+);
+----------
+create table _roles(
+Id int identity(1,1) constraint roles primary key,
+roleName varchar(200)
+);
+-------------
+create table _Universits(
+Id int identity(1,1) constraint universits primary key,
+univerName nvarchar(200) not null,
+univerLoction nvarchar(200) not null,
+univerEmail nvarchar(50) not null unique,
+univerWebSite varchar(200) not null unique,
+univerEstablishing datetime not null,
+);
+--------------
+create table _Colleges(
+Id int identity(1,1) constraint colleges primary key,
+collName nvarchar(200) not null,
+collLocation nvarchar(200)not null,
+);
+----------------------
+create table _UniverCollage(
+Id int identity(1,1) constraint univercollage primary key,
+IdCollage int,
+IdUniver int,
+foreign key (IdCollage) references _Colleges (Id),
+foreign key (IdUniver) references _Universits (Id),
+);
+--------------------------
+create table _Students(
+Id int identity(1,1) constraint students primary key,
+FirstName nvarchar(25) not null,
+LastName nvarchar(25) not null,
+FatherName nvarchar(25) not null,
+MotherName nvarchar(25) not null,
+Email varchar(50) not null unique,
+Phone varchar(15) not null unique,
+barthDay datetime not null check(barthDay >'01-01-1970'),
+IdCollage int not null,
+IdUniver int not null,
+foreign key (IdCollage) references _Colleges (Id),
+foreign key (IdUniver) references _Universits (Id),
+);
+---------------------------
+create table _TrainersAndAdmin(
+Id int identity(1,1) constraint trainersAndAdmin primary key,
+FirstName nvarchar(25) not null,
+LastName nvarchar(25) not null,
+Email varchar(50) not null unique,
+Phone varchar(15) not null unique,
+Purview nvarchar(200) not null,
+);
+------------------------
+create table _LoginToSystem(
+Id int identity(1,1)  primary key,
+Idroles int not null,
+IdUser int not null unique,
+IdTraAdmin int not null unique,
+IdStudents int not null unique,
+foreign key (Idroles) references _roles (Id),
+foreign key (IdUser) references _users (Id),
+foreign key (IdTraAdmin) references _TrainersAndAdmin (Id),
+foreign key (IdStudents) references _Students (Id),
+);
+---------------------------------
+create table _Trainings
+(
+Id int identity(1,1) constraint trainers primary key,
+TrainingsName nvarchar(100),
+purview nvarchar(100) not null,
+durtion Time not null,
+IdTraAdmin int not null ,
+foreign key (IdTraAdmin) references _TrainersAndAdmin (Id)
+);
+--------------------------------------
+create table _TechonylougeAndLanguage
+(
+Id int identity(1,1) constraint tchLang primary key,
+TchLangName nvarchar(100),
+);
+----------------------------------------
+create table _TrainingSpecialization(
+Id int identity(1,1) constraint trainingspecialization primary key,
+IdTchLang int not null  ,
+IdTrainers int not null  ,
+foreign key (IdTchLang) references _TechonylougeAndLanguage (Id),
+foreign key (IdTrainers) references _Trainings (Id),
+);
+-----------------------------------
+create table _TrainingConditions(
+Id int identity(1,1) constraint trainingConditions primary key,
+IdTraining int not null,
+IdUniverCollage int not null,
+IdTraiSpeci int ,
+foreign key (IdTraining) references _Trainings (Id),
+foreign key (IdUniverCollage) references _UniverCollage (Id),
+foreign key (IdTraiSpeci) references _TrainingSpecialization (Id)
+);
+------------------------------------
+create table _Company(
+Id int identity(1,1) constraint company primary key,
+CompanyName nvarchar(100) not null,
+Phone varchar(15) unique not null,
+Email varchar(50) unique not null,
+_Location nvarchar(100) not null,
+);
+------------------------------------
+create table _WorkOut(
+Id int identity(1,1) constraint workout primary key,
+NameJob varchar(50) not null,
+BeginWork dateTime not null,
+FinishWork dateTime,
+baseSalyer money check(baseSalyer>=0) not null,
+IdTraAdmin int,
+IdStudent int,
+IdCompany int not null,
+foreign key (IdTraAdmin) references _TrainersAndAdmin (Id),
+foreign key (IdStudent) references _Students (Id),
+foreign key (IdStudent) references _Company (Id),
+);
+---------------------------------------
+create table _CreateAccountUsers(
+Id int identity(1,1) constraint CreateAccountusers primary key,
+Timecreate datetime not null DEFAULT( GETDATE()),
+_UserName varchar(100) not null,
+_Password varchar(100) not null,
+_Email varchar(100) not null unique,
+IdStudents int,
+IdTraAdmin int,
+foreign key (IdStudents) references _Students(Id),
+foreign key (IdTraAdmin) references _TrainersAndAdmin(Id)
+);
+---------------------------------
+create table _Friends(
+Id int identity(1,1) constraint friends primary key,
+Timecreate datetime not null DEFAULT( GETDATE()),
+Idfriends int,
+foreign key (Idfriends) references _CreateAccountUsers(Id) 
+);
+------------------------------
+create table _Posts(
+Id int identity(1,1) constraint posts primary key,
+Timecreate datetime not null DEFAULT( GETDATE()),
+Title nvarchar(max),
+Text nvarchar(max),
+Idfriends int,
+foreign key (Idfriends) references _CreateAccountUsers(Id) 
+);
+--------------------------------------
+create table _Commints(
+Id int identity(1,1) constraint commits primary key,
+Timecreate datetime not null DEFAULT( GETDATE()),
+Idposts int,
+Idfriends int,
+foreign key (Idfriends) references _CreateAccountUsers(Id) ,
+foreign key (Idposts) references _Posts(Id) 
+ 
+);
+----------------------------------------
+create table _Likes(
+Id int identity(1,1) constraint likes primary key,
+Timecreate datetime not null DEFAULT( GETDATE()),
+Idposts int,
+Idfriends int,
+foreign key (Idfriends) references _CreateAccountUsers(Id) ,
+foreign key (Idposts) references _Posts(Id) 
+ 
+);
